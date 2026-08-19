@@ -1,0 +1,14 @@
+# Artefatos de compilação do SwiftPM
+.build/
+
+# Bundle .app montado pelo scripts/bundle.sh
+build/
+
+# macOS
+.DS_Store
+
+# Material de certificado, caso alguém gere dentro do projeto por engano.
+# A chave privada deve viver no chaveiro, nunca no repositório.
+*.p12
+*.pem
+*.key

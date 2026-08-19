@@ -1,0 +1,67 @@
+import AppKit
+import ClipDeckKit
+import SwiftUI
+
+/// Janela de captura: pega um texto e vira template.
+@MainActor
+final class CaptureController: NSObject, NSWindowDelegate {
+    private let store: Store
+    private var window: NSWindow?
+
+    init(store: Store) {
+        self.store = store
+        super.init()
+    }
+
+    /// Abre o formulário com o texto informado.
+    ///
+    /// Retorna false quando não há nada para salvar — quem chama avisa o usuário,
+    /// em vez de abrir uma janela vazia.
+    @discardableResult
+    func capture(text: String?) -> Bool {
+        guard let text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return false
+        }
+
+        close()
+
+        let view = CaptureView(
+            body_: text,
+            folders: store.folders,
+            suggestedTags: store.allTags,
+            onSave: { [weak self] title, folderID, tags in
+                guard let self else { return }
+                self.store.add(
+                    Template(title: title, body: text, folderID: folderID, tags: tags)
+                )
+                self.close()
+            },
+            onCancel: { [weak self] in self?.close() }
+        )
+
+        let hosting = NSHostingController(rootView: view)
+        let window = NSWindow(contentViewController: hosting)
+        window.title = "Salvar como template"
+        window.styleMask = [.titled, .closable]
+        window.isReleasedWhenClosed = false
+        window.delegate = self
+        window.center()
+        // .floating para não ficar atrás do app em que você estava trabalhando.
+        window.level = .floating
+
+        self.window = window
+
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        return true
+    }
+
+    func close() {
+        window?.orderOut(nil)
+        window = nil
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        window = nil
+    }
+}

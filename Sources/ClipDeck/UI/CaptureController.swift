@@ -48,6 +48,10 @@ final class CaptureController: NSObject, NSWindowDelegate {
         window.center()
         // .floating para não ficar atrás do app em que você estava trabalhando.
         window.level = .floating
+        // Vem para o Espaço (Mesa) atual em vez de o sistema levar o usuário até
+        // ela. Sem isso, ativar o ClipDeck com esta janela aberta em outra Mesa
+        // faz o macOS trocar de Mesa, o que é desorientador com dois monitores.
+        window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
 
         self.window = window
 

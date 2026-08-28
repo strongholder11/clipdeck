@@ -26,7 +26,11 @@ final class PalettePanel: NSPanel {
         // aparece também sobre apps em tela cheia, que é onde esse tipo de painel
         // costuma falhar.
         level = .floating
-        collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+        // .canJoinAllSpaces faz a paleta aparecer no Espaço (Mesa) atual em vez
+        // de arrastar o usuário para onde ela estava. .stationary foi removido
+        // de propósito: ele marca a janela como parte da mesa de trabalho, o que
+        // é semântica de papel de parede, não de painel flutuante.
+        collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
         // Some junto com o app em vez de continuar visível numa troca de Espaço.
         hidesOnDeactivate = false
@@ -45,11 +49,23 @@ final class PalettePanel: NSPanel {
         onDismiss?()
     }
 
-    /// Centraliza horizontalmente e posiciona no terço superior da tela ativa —
-    /// mais perto da linha de visão do que o centro geométrico.
-    func positionOnActiveScreen() {
-        guard let screen = NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) })
-            ?? NSScreen.main else { return }
+    /// Posiciona a paleta na tela em que o usuário está trabalhando.
+    ///
+    /// A escolha da tela é por foco de teclado, não pelo cursor do mouse. Num
+    /// setup de dois monitores é comum digitar num enquanto o mouse está parado
+    /// no outro — e seguir o mouse fazia a paleta abrir na tela errada, que era
+    /// exatamente o sintoma: "apertei ⌥Espaço e não abriu na tela em que estou".
+    ///
+    /// `NSScreen.main` é a tela que contém a janela com o foco de teclado. Como
+    /// isso é calculado antes de ativarmos o ClipDeck, ainda aponta para o app em
+    /// que o usuário estava escrevendo.
+    @discardableResult
+    func positionOnActiveScreen() -> NSScreen? {
+        let screen = NSScreen.main
+            ?? NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) }
+            ?? NSScreen.screens.first
+
+        guard let screen else { return nil }
 
         let visible = screen.visibleFrame
         let size = frame.size
@@ -58,5 +74,13 @@ final class PalettePanel: NSPanel {
             y: visible.maxY - size.height - visible.height * 0.18
         )
         setFrameOrigin(origin)
+        return screen
+    }
+
+    /// Nome curto da tela, para diagnóstico.
+    static func describe(_ screen: NSScreen?) -> String {
+        guard let screen else { return "nenhuma" }
+        let frame = screen.frame
+        return "\(Int(frame.width))x\(Int(frame.height))@\(Int(frame.origin.x)),\(Int(frame.origin.y))"
     }
 }

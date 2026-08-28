@@ -13,6 +13,7 @@ final class PaletteController: NSObject, NSWindowDelegate {
 
     /// Instante em que a paleta apareceu. Ver `windowDidResignKey`.
     private var shownAt: Date?
+    private var chosenScreen: NSScreen?
 
     /// Desliga o fechamento automático ao perder o foco. Só para inspecionar a
     /// UI durante o desenvolvimento (`--no-auto-hide`).
@@ -44,7 +45,16 @@ final class PaletteController: NSObject, NSWindowDelegate {
     var isVisible: Bool { panel?.isVisible ?? false }
 
     func toggle() {
-        isVisible ? hide() : show()
+        // Estar "visível" não significa que o usuário está vendo: a paleta pode
+        // ter ficado para trás em outro Espaço ou no outro monitor. Nesse caso o
+        // toggle antigo a fechava de forma invisível, e o atalho parecia não ter
+        // funcionado — só na segunda tentativa ela aparecia. Ter o foco de teclado
+        // é o teste confiável de que ela está de fato na frente do usuário.
+        if isVisible, panel?.isKeyWindow == true {
+            hide()
+        } else {
+            show()
+        }
     }
 
     func show() {
@@ -54,17 +64,16 @@ final class PaletteController: NSObject, NSWindowDelegate {
         model.reset()
         model.refresh()
 
-        panel.positionOnActiveScreen()
+        let screen = panel.positionOnActiveScreen()
         activate(panel)
+        chosenScreen = screen
         shownAt = Date()
 
         installKeyMonitor()
 
         logState(panel, moment: "abertura")
-        if Self.debugEnabled {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
-                self?.logState(panel, moment: "apos-0.8s")
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+            self?.logState(panel, moment: "apos-0.8s")
         }
     }
 
@@ -134,15 +143,28 @@ final class PaletteController: NSObject, NSWindowDelegate {
             || CommandLine.arguments.contains("--debug")
     }
 
-    /// Escreve em arquivo, e não em stderr, para funcionar também quando o app é
-    /// aberto pelo Finder ou pelo `open`, onde não há terminal ligado.
+    /// Registra cada abertura da paleta num log local.
+    ///
+    /// Sempre ativo, e não só sob --debug: falhas de foco e de tela são
+    /// intermitentes e dependem de monitor e Espaço, então quando o usuário
+    /// percebe o problema já é tarde para pedir que reproduza com uma flag.
+    /// Só metadados de janela — nada do conteúdo dos templates.
     private func logState(_ panel: PalettePanel, moment: String) {
-        guard Self.debugEnabled else { return }
-        let line = "[\(moment)] visivel=\(panel.isVisible) key=\(panel.isKeyWindow)"
-            + " frame=\(panel.frame) itens=\(model.items.count)"
-            + " appAtivo=\(NSApp.isActive)\n"
+        let line = "[\(Date().formatted(date: .numeric, time: .standard))] \(moment)"
+            + " visivel=\(panel.isVisible) key=\(panel.isKeyWindow)"
+            + " tela=\(PalettePanel.describe(chosenScreen))"
+            + " telaPrincipal=\(PalettePanel.describe(NSScreen.main))"
+            + " telas=\(NSScreen.screens.count)"
+            + " itens=\(model.items.count) appAtivo=\(NSApp.isActive)\n"
 
-        let url = LibraryStorage.defaultDirectory.appendingPathComponent("debug.log")
+        let url = LibraryStorage.defaultDirectory.appendingPathComponent("clipdeck.log")
+
+        // Trunca ao passar de 64 KB: é diagnóstico, não histórico.
+        if let size = try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int,
+           size > 64_000 {
+            try? FileManager.default.removeItem(at: url)
+        }
+
         if let handle = try? FileHandle(forWritingTo: url) {
             handle.seekToEndOfFile()
             handle.write(Data(line.utf8))

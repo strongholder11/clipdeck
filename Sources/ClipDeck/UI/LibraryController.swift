@@ -29,6 +29,10 @@ final class LibraryController: NSObject, NSWindowDelegate {
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.center()
+        // Vem para o Espaço (Mesa) atual em vez de o sistema levar o usuário até
+        // ela. Sem isso, ativar o ClipDeck com esta janela aberta em outra Mesa
+        // faz o macOS trocar de Mesa, o que é desorientador com dois monitores.
+        window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
 
         self.window = window
         NSApp.activate(ignoringOtherApps: true)

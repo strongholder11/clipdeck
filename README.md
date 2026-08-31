@@ -44,11 +44,40 @@ Três são resolvidas automaticamente e não viram campo:
 
 ## Instalação
 
+### Pré-requisitos
+
+Precisa do compilador do Swift, que não vem instalado por padrão. Sem Xcode
+completo, as Ferramentas de Linha de Comando bastam — é tudo que este projeto
+usa:
+
 ```
+xcode-select --install
+```
+
+Aparece um instalador do sistema; aceite e espere terminar (alguns minutos,
+dependendo da internet). Se você já tem o Xcode completo instalado, pode pular
+esse passo.
+
+Confirma que funcionou:
+
+```
+swift --version
+```
+
+### Compilar e instalar
+
+```
+git clone https://github.com/strongholder11/clipdeck.git
+cd clipdeck
+make cert
 make run
 ```
 
-Compila, monta `ClipDeck.app`, instala em `~/Applications` e abre.
+- `make cert` cria um certificado local (uma vez por máquina) para a permissão
+  de Acessibilidade não cair a cada recompilação — veja o porquê mais abaixo.
+- `make run` compila, monta `ClipDeck.app`, instala em `~/Applications` e abre.
+
+O ícone aparece na barra de menu (não no Dock).
 
 ### Permissão de Acessibilidade
 

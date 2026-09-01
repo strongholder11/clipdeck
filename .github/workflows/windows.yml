@@ -19,6 +19,12 @@ jobs:
   build:
     runs-on: windows-latest
 
+    # Necessário para anexar o instalador à Release. O token do workflow é
+    # somente leitura por padrão, e sem isso o upload falha com 403 — depois
+    # de o build inteiro ter passado.
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
 

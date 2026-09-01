@@ -63,6 +63,14 @@ Capture("04-captura", () =>
     return window;
 });
 
+Capture("04b-captura-nova-pasta", () =>
+{
+    var window = new CaptureWindow(store, "Oi {{nome}}, segue a proposta que combinamos.",
+                                   startWithNewFolder: true);
+    window.Show();
+    return window;
+});
+
 Capture("05-biblioteca", () =>
 {
     var window = new LibraryWindow(store);

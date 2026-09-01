@@ -1,6 +1,22 @@
 import ClipDeckKit
 import SwiftUI
 
+/// O que está escolhido no seletor de pasta.
+///
+/// Um `UUID?` não comporta a terceira opção: "criar uma pasta agora". Um tipo
+/// próprio deixa as três alternativas explícitas em vez de reservar algum UUID
+/// mágico para significar "nova".
+enum FolderChoice: Hashable {
+    case none
+    case existing(UUID)
+    case new
+
+    var folderID: UUID? {
+        if case .existing(let id) = self { return id }
+        return nil
+    }
+}
+
 /// Formulário para transformar um texto copiado em template.
 struct CaptureView: View {
     let body_: String
@@ -8,11 +24,20 @@ struct CaptureView: View {
     let suggestedTags: [String]
 
     @State private var title: String = ""
-    @State private var folderID: UUID?
+    /// Estado inicial do seletor. Existe para poder inspecionar o formulário
+    /// já com a criação de pasta aberta, sem depender de abrir o menu à mão.
+    var initialFolderChoice: FolderChoice = .none
+
+    @State private var folderChoice: FolderChoice = .none
+    @State private var newFolderName: String = ""
+    @FocusState private var newFolderFocused: Bool
     @State private var tagsText: String = ""
     @FocusState private var titleFocused: Bool
 
     var onSave: (String, UUID?, [String]) -> Void
+
+    /// Cria a pasta e devolve o id, para já deixá-la selecionada.
+    var onCreateFolder: (String) -> UUID
     var onCancel: () -> Void
 
     var body: some View {
@@ -29,14 +54,45 @@ struct CaptureView: View {
                 }
 
                 field("Pasta") {
-                    Picker("", selection: $folderID) {
-                        Text("Sem pasta").tag(UUID?.none)
-                        ForEach(folders) { folder in
-                            Text(folder.name).tag(UUID?.some(folder.id))
+                    VStack(alignment: .leading, spacing: 6) {
+                        Picker("", selection: $folderChoice) {
+                            Text("Sem pasta").tag(FolderChoice.none)
+                            ForEach(folders) { folder in
+                                Text(folder.name).tag(FolderChoice.existing(folder.id))
+                            }
+                            Divider()
+                            Text("Nova pasta…").tag(FolderChoice.new)
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .onChange(of: folderChoice) { choice in
+                            // Foca o campo assim que "Nova pasta…" é escolhida:
+                            // sem isso é preciso clicar nele antes de digitar.
+                            if choice == .new { newFolderFocused = true }
+                        }
+
+                        if folderChoice == .new {
+                            HStack(spacing: 6) {
+                                TextField("Nome da pasta", text: $newFolderName)
+                                    .textFieldStyle(.roundedBorder)
+                                    .focused($newFolderFocused)
+                                    .onSubmit(createFolder)
+
+                                Button("Criar", action: createFolder)
+                                    .disabled(trimmedFolderName.isEmpty)
+
+                                Button {
+                                    folderChoice = .none
+                                    newFolderName = ""
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                                .help("Cancelar")
+                            }
                         }
                     }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
                 }
 
                 field("Tags") {
@@ -81,6 +137,7 @@ struct CaptureView: View {
         .frame(width: 480)
         .background(.regularMaterial)
         .onAppear {
+            folderChoice = initialFolderChoice
             titleFocused = true
             // Sugere um título a partir da primeira linha: quase sempre é o que
             // você quer, e economiza a digitação no caso comum.
@@ -143,6 +200,30 @@ struct CaptureView: View {
         tagsText = current.joined(separator: " ")
     }
 
+    private var trimmedFolderName: String {
+        newFolderName.trimmingCharacters(in: .whitespaces)
+    }
+
+    /// Cria a pasta e a deixa selecionada, sem tirar você do formulário.
+    private func createFolder() {
+        let name = trimmedFolderName
+        guard !name.isEmpty else { return }
+
+        // Reaproveita uma pasta de mesmo nome em vez de criar uma duplicata —
+        // digitar "Vendas" quando "Vendas" já existe quase nunca quer dizer
+        // "quero duas pastas chamadas Vendas".
+        if let existing = folders.first(where: {
+            TextNormalizer.fold($0.name) == TextNormalizer.fold(name)
+        }) {
+            folderChoice = .existing(existing.id)
+        } else {
+            folderChoice = .existing(onCreateFolder(name))
+        }
+
+        newFolderName = ""
+        titleFocused = true
+    }
+
     private func save() {
         let trimmed = title.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
@@ -150,6 +231,6 @@ struct CaptureView: View {
             .split(whereSeparator: { $0 == " " || $0 == "," })
             .map { $0.trimmingCharacters(in: CharacterSet(charactersIn: "#")) }
             .filter { !$0.isEmpty }
-        onSave(trimmed, folderID, tags)
+        onSave(trimmed, folderChoice.folderID, tags)
     }
 }

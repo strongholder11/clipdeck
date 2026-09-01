@@ -29,12 +29,20 @@ final class CaptureController: NSObject, NSWindowDelegate {
             body_: text,
             folders: store.folders,
             suggestedTags: store.allTags,
+            initialFolderChoice: CommandLine.arguments.contains("--new-folder") ? .new : .none,
             onSave: { [weak self] title, folderID, tags in
                 guard let self else { return }
                 self.store.add(
                     Template(title: title, body: text, folderID: folderID, tags: tags)
                 )
                 self.close()
+            },
+            onCreateFolder: { [weak self] name in
+                guard let self else { return UUID() }
+                let order = (self.store.folders.map(\.order).max() ?? -1) + 1
+                let folder = Folder(name: name, order: order)
+                self.store.addFolder(folder)
+                return folder.id
             },
             onCancel: { [weak self] in self?.close() }
         )

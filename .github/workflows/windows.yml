@@ -10,6 +10,7 @@ on:
   push:
     branches: [main]
     paths: ['windows/**', '.github/workflows/windows.yml']
+    tags: ['v*']
   workflow_dispatch:
 
 jobs:
@@ -59,3 +60,17 @@ jobs:
             windows/installer/ClipDeck-1.0.0.msi
             windows/publish/win-x64/ClipDeck.exe
           if-no-files-found: error
+
+      # Numa tag de versão, o instalador vai direto para a Release.
+      #
+      # Artefato de Actions não serve para quem só quer instalar: exige entrar na
+      # aba Actions, abrir a execução certa e achar "Artifacts". A Release aparece
+      # na página inicial do repositório, com um link direto.
+      - name: Anexar o instalador à Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          Copy-Item windows/installer/ClipDeck-1.0.0.msi ClipDeck-Instalador.msi
+          gh release upload ${{ github.ref_name }} ClipDeck-Instalador.msi --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}

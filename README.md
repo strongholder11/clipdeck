@@ -1,8 +1,40 @@
 # ClipDeck
 
-Gerenciador de templates de mensagem para macOS. App de barra de menu: você chama
-com um atalho, digita duas ou três letras e o texto vai direto para onde você
-estava escrevendo.
+Gerenciador de templates de mensagem. Você chama com um atalho, digita duas ou
+três letras e o texto vai direto para onde estava escrevendo.
+
+---
+
+## 📥 Instalar
+
+### Windows
+
+**[⬇️ Baixar o instalador](https://github.com/strongholder11/clipdeck/releases/latest/download/ClipDeck-Instalador.msi)** — dois cliques no arquivo baixado e pronto.
+
+Se você já baixou este repositório inteiro, dê dois cliques em
+**`INSTALAR-WINDOWS.bat`**, na pasta principal — ele baixa e abre o instalador
+sozinho.
+
+Não precisa de senha de administrador, e o ClipDeck passa a abrir junto com o
+Windows.
+
+> Na primeira vez o Windows mostra uma tela azul dizendo que "protegeu o
+> computador". É porque o programa não tem assinatura comercial (custa algumas
+> centenas de dólares por ano). Clique em **Mais informações** e depois em
+> **Executar assim mesmo**.
+
+Atalhos no Windows: `Alt+Espaço` abre a busca, `Ctrl+Shift+C` salva o que você
+copiou. Detalhes em [windows/README.md](windows/README.md).
+
+### macOS
+
+Não há instalador pronto: o app precisa ser compilado na própria máquina, porque
+sem isso o macOS não concede a permissão que o colar automático usa. São dois
+comandos — veja **[Instalação no macOS](#instalação-no-macos)** mais abaixo.
+
+Atalhos no Mac: `⌥Espaço` abre a busca, `⌥⌘C` salva o que você copiou.
+
+---
 
 ## Uso
 
@@ -42,7 +74,7 @@ Três são resolvidas automaticamente e não viram campo:
 | `{{hora}}` | hora atual (24h) |
 | `{{clipboard}}` | o que estava na área de transferência |
 
-## Instalação
+## Instalação no macOS
 
 ### Pré-requisitos
 

@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClipDeck.App.Views.FillWindow"
+        Width="460" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True" CanResize="False">
+    <StackPanel>
+        <TextBlock Name="HeaderText" FontWeight="SemiBold" FontSize="15" Margin="16,14,16,10"/>
+        <Border Height="1" Background="#28808080"/>
+
+        <ItemsControl Name="FieldsHost" Margin="16,14">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate><StackPanel Spacing="10"/></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
+        <Border Height="1" Background="#28808080"/>
+        <ScrollViewer Height="130">
+            <TextBlock Name="PreviewText" TextWrapping="Wrap" FontSize="12" Margin="12"/>
+        </ScrollViewer>
+
+        <Border Height="1" Background="#28808080"/>
+        <Grid ColumnDefinitions="*,Auto,Auto" Margin="16,12">
+            <TextBlock Grid.Column="0" Name="RemainingText" FontSize="11"
+                       Foreground="#E08A2E" VerticalAlignment="Center"/>
+            <Button Grid.Column="1" Name="CancelButton" Content="Cancelar" Margin="0,0,8,0"/>
+            <Button Grid.Column="2" Name="ConfirmButton" Content="Colar" IsDefault="True"/>
+        </Grid>
+    </StackPanel>
+</Window>

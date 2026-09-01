@@ -12,3 +12,9 @@ build/
 *.p12
 *.pem
 *.key
+
+# .NET (versão Windows)
+[Bb]in/
+[Oo]bj/
+windows/publish/
+windows/installer/*.msi

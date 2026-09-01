@@ -1,0 +1,47 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClipDeck.App.Views.CaptureWindow"
+        Title="Salvar como template"
+        Width="480" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True" CanResize="False">
+    <StackPanel>
+        <TextBlock Text="Salvar como template" FontWeight="SemiBold" FontSize="15" Margin="16,14,16,10"/>
+        <Border Height="1" Background="#28808080"/>
+
+        <StackPanel Margin="16,14" Spacing="12">
+            <StackPanel Spacing="4">
+                <TextBlock Text="Título" FontSize="11" Opacity="0.6"/>
+                <TextBox Name="TitleBox" PlaceholderText="Como você vai procurar por ele"/>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Pasta" FontSize="11" Opacity="0.6"/>
+                <ComboBox Name="FolderBox" HorizontalAlignment="Stretch"/>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Tags" FontSize="11" Opacity="0.6"/>
+                <TextBox Name="TagsBox" PlaceholderText="separadas por espaço"/>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Conteúdo" FontSize="11" Opacity="0.6"/>
+                <Border Background="#14808080" CornerRadius="6" Height="120">
+                    <ScrollViewer>
+                        <TextBlock Name="BodyPreview" TextWrapping="Wrap"
+                                   FontFamily="Consolas,Menlo,monospace" FontSize="12" Margin="8"/>
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+        </StackPanel>
+
+        <Border Height="1" Background="#28808080"/>
+        <Grid ColumnDefinitions="*,Auto,Auto" Margin="16,12">
+            <TextBlock Grid.Column="0" Name="CountText" FontSize="11" Opacity="0.4"
+                       VerticalAlignment="Center"/>
+            <Button Grid.Column="1" Name="CancelButton" Content="Cancelar" Margin="0,0,8,0"/>
+            <Button Grid.Column="2" Name="SaveButton" Content="Salvar" IsDefault="True"/>
+        </Grid>
+    </StackPanel>
+</Window>

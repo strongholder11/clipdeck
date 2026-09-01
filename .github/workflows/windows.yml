@@ -1,0 +1,61 @@
+name: Windows
+
+# Compila o ClipDeck para Windows e monta o instalador.
+#
+# Existe porque o desenvolvimento acontece num Mac: o WiX só roda no Windows, e
+# um MSI montado fora dele seria construído sobre comportamento que o próprio
+# WiX declara indefinido. Aqui ele é montado na plataforma certa.
+
+on:
+  push:
+    branches: [main]
+    paths: ['windows/**', '.github/workflows/windows.yml']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Testes da lógica
+        working-directory: windows
+        run: dotnet test --nologo --verbosity minimal
+
+      - name: Publicar executável
+        working-directory: windows
+        run: >
+          dotnet publish src/ClipDeck.App -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -o publish/win-x64
+
+      - name: Remover símbolos das bibliotecas nativas
+        working-directory: windows
+        shell: pwsh
+        run: Remove-Item publish/win-x64/*.pdb -ErrorAction SilentlyContinue
+
+      # WiX v5: MIT. O v6 e o v7 passaram a exigir uma licença paga (OSMF).
+      - name: Instalar WiX
+        run: dotnet tool install --global wix --version 5.0.2
+
+      - name: Montar o MSI
+        working-directory: windows
+        run: >
+          wix build installer/ClipDeck.wxs
+          -bindpath publish:publish/win-x64
+          -arch x64
+          -o installer/ClipDeck-1.0.0.msi
+
+      - name: Publicar artefatos
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClipDeck-Windows
+          path: |
+            windows/installer/ClipDeck-1.0.0.msi
+            windows/publish/win-x64/ClipDeck.exe
+          if-no-files-found: error

@@ -1,0 +1,26 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ClipDeck.App.App"
+             RequestedThemeVariant="Default">
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="PaletteBackground" Color="#F5F5F7" Opacity="0.97"/>
+                    <SolidColorBrush x:Key="PaletteBorder" Color="#20000000"/>
+                    <SolidColorBrush x:Key="KeyCapBackground" Color="#14000000"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="PaletteBackground" Color="#1E1E1E" Opacity="0.97"/>
+                    <SolidColorBrush x:Key="PaletteBorder" Color="#28FFFFFF"/>
+                    <SolidColorBrush x:Key="KeyCapBackground" Color="#1AFFFFFF"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

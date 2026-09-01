@@ -1,0 +1,117 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ClipDeck.App.ViewModels"
+        x:Class="ClipDeck.App.Views.PaletteWindow"
+        x:DataType="vm:PaletteViewModel"
+        Title="ClipDeck"
+        Width="720" Height="460"
+        WindowDecorations="None"
+        Topmost="True"
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual"
+        Background="Transparent"
+        TransparencyLevelHint="AcrylicBlur"
+        CanResize="False">
+
+    <Window.Styles>
+        <!-- O tema desenha borda e fundo no TextBox mesmo com BorderThickness=0,
+             e numa paleta isso vira uma caixa dentro da caixa. -->
+        <Style Selector="TextBox#SearchBox">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="TextBox#SearchBox /template/ Border">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+    </Window.Styles>
+
+    <Border CornerRadius="12" BorderThickness="1" ClipToBounds="True"
+            Background="{DynamicResource PaletteBackground}"
+            BorderBrush="{DynamicResource PaletteBorder}">
+        <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+
+            <!-- Campo de busca -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="16,14">
+                <PathIcon Grid.Column="0" Width="16" Height="16" Margin="0,0,10,0"
+                          Opacity="0.55"
+                          Data="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                <TextBox Grid.Column="1" Name="SearchBox"
+                         Text="{Binding Query, Mode=TwoWay}"
+                         PlaceholderText="Buscar template…  (#tag  /pasta)"
+                         FontSize="20"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         Padding="0"
+                         VerticalContentAlignment="Center"/>
+            </Grid>
+
+            <Border Grid.Row="1" Height="1" Background="{DynamicResource PaletteBorder}"/>
+
+            <!-- Resultados -->
+            <ListBox Grid.Row="2" Name="ResultsList"
+                     ItemsSource="{Binding Rows}"
+                     SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Margin="6"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PaletteRow">
+                        <Grid ColumnDefinitions="*,Auto" Margin="4,3">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="{Binding Title}"
+                                           FontSize="14" FontWeight="Medium"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding Subtitle}"
+                                           FontSize="11" Opacity="0.6"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding Shortcut}"
+                                       FontSize="10" Opacity="0.4"
+                                       VerticalAlignment="Center" Margin="8,0,0,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- Estado vazio, sobreposto à lista -->
+            <StackPanel Grid.Row="2" Spacing="6"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        IsVisible="{Binding IsEmpty}">
+                <TextBlock Text="{Binding EmptyMessage}" Opacity="0.6"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Ctrl+N salva o que está na área de transferência"
+                           FontSize="11" Opacity="0.4" HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <Border Grid.Row="3" Height="1" Background="{DynamicResource PaletteBorder}"/>
+
+            <!-- Rodapé com as teclas -->
+            <Grid Grid.Row="4" ColumnDefinitions="*,Auto" Margin="14,8">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="14">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Border Background="{DynamicResource KeyCapBackground}" CornerRadius="4" Padding="5,1">
+                            <TextBlock Text="Enter" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                        <TextBlock Text="colar" FontSize="11" Opacity="0.6" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Border Background="{DynamicResource KeyCapBackground}" CornerRadius="4" Padding="5,1">
+                            <TextBlock Text="Shift+Enter" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                        <TextBlock Text="copiar" FontSize="11" Opacity="0.6" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Border Background="{DynamicResource KeyCapBackground}" CornerRadius="4" Padding="5,1">
+                            <TextBlock Text="Ctrl+N" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                        <TextBlock Text="novo do clipboard" FontSize="11" Opacity="0.6" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="{Binding ResultCount}"
+                           FontSize="11" Opacity="0.4" VerticalAlignment="Center"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

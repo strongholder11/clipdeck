@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <!--
+    Instalador por usuário, não por máquina.
+
+    Instalar em Program Files exigiria elevação e a caixa do UAC. Como o ClipDeck
+    é um app pessoal que roda na bandeja, InstallScope="perUser" evita a senha de
+    administrador e instala em %LocalAppData%\Programs — que é onde o Windows
+    espera esse tipo de programa.
+  -->
+  <Package Name="ClipDeck"
+           Manufacturer="ClipDeck"
+           Version="1.0.0"
+           UpgradeCode="8F3A2B71-4C5D-4E6F-9A8B-1C2D3E4F5A6B"
+           Scope="perUser"
+           Compressed="yes">
+
+    <!-- Substitui a versão anterior em vez de acumular instalações. -->
+    <MajorUpgrade DowngradeErrorMessage="Uma versão mais recente do ClipDeck já está instalada." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="ProgramsFolder" Name="Programs">
+        <Directory Id="INSTALLFOLDER" Name="ClipDeck" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppMenuFolder" Name="ClipDeck" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="StartupFolder" />
+
+    <Feature Id="Main" Title="ClipDeck" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="StartupShortcut" />
+    </Feature>
+
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="1D2E3F4A-5B6C-7D8E-9F0A-1B2C3D4E5F60">
+        <File Id="ClipDeckExe" Source="!(bindpath.publish)\ClipDeck.exe" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <Component Id="StartMenuShortcut" Directory="AppMenuFolder"
+               Guid="2E3F4A5B-6C7D-8E9F-0A1B-2C3D4E5F6071">
+      <Shortcut Id="AppShortcut" Name="ClipDeck"
+                Description="Gerenciador de templates de mensagem"
+                Target="[INSTALLFOLDER]ClipDeck.exe"
+                WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="RemoveAppMenuFolder" Directory="AppMenuFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" Key="Software\ClipDeck"
+                     Name="StartMenu" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+
+    <!--
+      Atalho na pasta Inicializar: o app precisa estar rodando para o atalho
+      global funcionar, e ninguém lembra de abrir manualmente um programa que
+      vive na bandeja.
+    -->
+    <Component Id="StartupShortcut" Directory="StartupFolder"
+               Guid="3F4A5B6C-7D8E-9F0A-1B2C-3D4E5F607182">
+      <Shortcut Id="AutoStartShortcut" Name="ClipDeck"
+                Target="[INSTALLFOLDER]ClipDeck.exe"
+                WorkingDirectory="INSTALLFOLDER" />
+      <RegistryValue Root="HKCU" Key="Software\ClipDeck"
+                     Name="Startup" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+
+  </Package>
+</Wix>

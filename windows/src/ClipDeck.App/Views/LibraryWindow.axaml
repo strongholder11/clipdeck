@@ -1,0 +1,91 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="using:ClipDeck.Core.Models"
+        x:Class="ClipDeck.App.Views.LibraryWindow"
+        Title="Biblioteca do ClipDeck"
+        Width="980" Height="620"
+        WindowStartupLocation="CenterScreen">
+    <Grid ColumnDefinitions="220,1,300,1,*">
+
+        <!-- Pastas e tags -->
+        <Grid Grid.Column="0" RowDefinitions="*,Auto">
+            <TreeView Grid.Row="0" Name="SidebarTree" Background="Transparent" BorderThickness="0"/>
+            <Button Grid.Row="1" Name="NewFolderButton" Content="+  Nova pasta"
+                    HorizontalAlignment="Left" Margin="8" Background="Transparent"
+                    BorderThickness="0" FontSize="12"/>
+        </Grid>
+
+        <Border Grid.Column="1" Background="#28808080"/>
+
+        <!-- Lista de templates -->
+        <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto">
+            <TextBox Grid.Row="0" Name="FilterBox" PlaceholderText="Filtrar" Margin="8"/>
+            <ListBox Grid.Row="1" Name="TemplateList" Background="Transparent" BorderThickness="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:Template">
+                        <StackPanel Spacing="2" Margin="2,3">
+                            <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="Medium"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding Preview}" FontSize="11" Opacity="0.55"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" Margin="8">
+                <Button Grid.Column="0" Name="NewTemplateButton" Content="+  Novo template"
+                        Background="Transparent" BorderThickness="0" FontSize="12"/>
+                <TextBlock Grid.Column="2" Name="CountText" FontSize="11" Opacity="0.4"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Column="3" Background="#28808080"/>
+
+        <!-- Editor -->
+        <Grid Grid.Column="4" Name="EditorPanel" RowDefinitions="*,Auto" IsVisible="False">
+            <ScrollViewer Grid.Row="0">
+                <StackPanel Margin="16" Spacing="12">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Título" FontSize="11" Opacity="0.6"/>
+                        <TextBox Name="EditTitle"/>
+                    </StackPanel>
+                    <Grid ColumnDefinitions="*,12,*">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Pasta" FontSize="11" Opacity="0.6"/>
+                            <ComboBox Name="EditFolder" HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="Tags" FontSize="11" Opacity="0.6"/>
+                            <TextBox Name="EditTags" PlaceholderText="separadas por espaço"/>
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Conteúdo" FontSize="11" Opacity="0.6"/>
+                        <TextBox Name="EditBody" AcceptsReturn="True" TextWrapping="Wrap"
+                                 MinHeight="240" VerticalContentAlignment="Top"/>
+                    </StackPanel>
+                    <StackPanel Spacing="5">
+                        <TextBlock Name="VariablesLabel" Text="Variáveis detectadas"
+                                   FontSize="11" Opacity="0.6"/>
+                        <ItemsControl Name="VariablesHost">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="16,10">
+                <TextBlock Grid.Column="0" Name="UsageText" FontSize="11" Opacity="0.4"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Name="DeleteButton" Content="Apagar"/>
+            </Grid>
+        </Grid>
+
+        <StackPanel Grid.Column="4" Name="EmptyPanel" Spacing="8"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Selecione um template" Opacity="0.5" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Window>

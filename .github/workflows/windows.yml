@@ -47,7 +47,7 @@ jobs:
         working-directory: windows
         run: >
           wix build installer/ClipDeck.wxs
-          -bindpath publish:publish/win-x64
+          -bindpath publish=publish/win-x64
           -arch x64
           -o installer/ClipDeck-1.0.0.msi
 

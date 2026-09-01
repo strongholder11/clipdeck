@@ -6,10 +6,12 @@ name: Windows
 # um MSI montado fora dele seria construído sobre comportamento que o próprio
 # WiX declara indefinido. Aqui ele é montado na plataforma certa.
 
+# Sem filtro de caminho: com 'paths' ligado, um push de tag pode não disparar
+# nada, e a Release sairia sem instalador — falha silenciosa justamente no
+# momento em que alguém está esperando o download.
 on:
   push:
     branches: [main]
-    paths: ['windows/**', '.github/workflows/windows.yml']
     tags: ['v*']
   workflow_dispatch:
 
@@ -53,14 +55,14 @@ jobs:
           -bindpath publish=publish/win-x64
           -arch x64
           -ext WixToolset.Util.wixext
-          -o installer/ClipDeck-1.0.0.msi
+          -o installer/ClipDeck-Instalador.msi
 
       - name: Publicar artefatos
         uses: actions/upload-artifact@v4
         with:
           name: ClipDeck-Windows
           path: |
-            windows/installer/ClipDeck-1.0.0.msi
+            windows/installer/ClipDeck-Instalador.msi
             windows/publish/win-x64/ClipDeck.exe
           if-no-files-found: error
 
@@ -72,8 +74,6 @@ jobs:
       - name: Anexar o instalador à Release
         if: startsWith(github.ref, 'refs/tags/v')
         shell: pwsh
-        run: |
-          Copy-Item windows/installer/ClipDeck-1.0.0.msi ClipDeck-Instalador.msi
-          gh release upload ${{ github.ref_name }} ClipDeck-Instalador.msi --clobber
+        run: gh release upload ${{ github.ref_name }} windows/installer/ClipDeck-Instalador.msi --clobber
         env:
           GH_TOKEN: ${{ github.token }}

@@ -7,7 +7,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>ClipDeck</AssemblyName>
     <ApplicationIcon>Assets/clipdeck.ico</ApplicationIcon>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Product>ClipDeck</Product>
     <Company>ClipDeck</Company>
     <!-- Sem símbolos de depuração no pacote: eram 100 MB de .pdb junto do app. -->

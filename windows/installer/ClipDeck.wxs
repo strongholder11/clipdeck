@@ -13,7 +13,7 @@
   -->
   <Package Name="ClipDeck"
            Manufacturer="ClipDeck"
-           Version="1.0.0"
+           Version="1.0.1"
            UpgradeCode="8F3A2B71-4C5D-4E6F-9A8B-1C2D3E4F5A6B"
            Scope="perUser"
            Compressed="yes">

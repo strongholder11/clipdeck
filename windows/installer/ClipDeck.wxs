@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
   <!--
     Instalador por usuário, não por máquina.
@@ -69,6 +71,24 @@
       <RegistryValue Root="HKCU" Key="Software\ClipDeck"
                      Name="Startup" Type="integer" Value="1" KeyPath="yes" />
     </Component>
+
+    <!--
+      Abre o ClipDeck ao terminar de instalar.
+
+      Sem isso o instalador roda em dois segundos, fecha, e nada acontece: o
+      programa fica instalado mas parado, e só subiria no próximo login. Para
+      quem instalou, parece que não funcionou.
+    -->
+    <Property Id="WixShellExecTarget" Value="[#ClipDeckExe]" />
+    <CustomAction Id="AbrirClipDeck"
+                  DllEntry="WixShellExec"
+                  BinaryRef="Wix4UtilCA_X64"
+                  Impersonate="yes"
+                  Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="AbrirClipDeck" After="InstallFinalize" Condition="NOT Installed" />
+    </InstallExecuteSequence>
 
   </Package>
 </Wix>

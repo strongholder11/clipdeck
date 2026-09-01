@@ -42,7 +42,9 @@ jobs:
 
       # WiX v5: MIT. O v6 e o v7 passaram a exigir uma licença paga (OSMF).
       - name: Instalar WiX
-        run: dotnet tool install --global wix --version 5.0.2
+        run: |
+          dotnet tool install --global wix --version 5.0.2
+          wix extension add -g WixToolset.Util.wixext/5.0.2
 
       - name: Montar o MSI
         working-directory: windows
@@ -50,6 +52,7 @@ jobs:
           wix build installer/ClipDeck.wxs
           -bindpath publish=publish/win-x64
           -arch x64
+          -ext WixToolset.Util.wixext
           -o installer/ClipDeck-1.0.0.msi
 
       - name: Publicar artefatos

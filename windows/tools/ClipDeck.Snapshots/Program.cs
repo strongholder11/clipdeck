@@ -3,6 +3,7 @@ using Avalonia.Headless;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using ClipDeck.App;
+using ClipDeck.App.Platform;
 using ClipDeck.App.Services;
 using ClipDeck.App.ViewModels;
 using ClipDeck.App.Views;
@@ -46,6 +47,30 @@ Capture("02-paleta-busca", () =>
     return window;
 });
 
+Capture("02b-paleta-copias-recentes", () =>
+{
+    // Cópias feitas "por outro programa", para a seção de recentes aparecer.
+    var clipboard = new ClipboardWatcher();
+    ClipboardHelper.SimulateExternalCopy("Bom dia! Segue o orçamento atualizado conforme conversamos.");
+    clipboard.Poll();
+    ClipboardHelper.SimulateExternalCopy("Pix: financeiro@empresa.com.br");
+    clipboard.Poll();
+
+    var window = new PaletteWindow(new PaletteViewModel(store, clipboard));
+    window.Show();
+    return window;
+});
+
+Capture("02c-paleta-destaque", () =>
+{
+    var model = new PaletteViewModel(store);
+    var window = new PaletteWindow(model);
+    window.Show();
+    // Abreviação: as letras casadas aparecem em negrito sublinhado.
+    model.Query = "flwp";
+    return window;
+});
+
 Capture("03-preenchimento", () =>
 {
     var template = store.Templates.First(t => t.Title == "Confirmar reunião");
@@ -74,6 +99,21 @@ Capture("04b-captura-nova-pasta", () =>
 Capture("05-biblioteca", () =>
 {
     var window = new LibraryWindow(store);
+    window.Show();
+    return window;
+});
+
+Capture("06-preferencias", () =>
+{
+    var window = new PreferencesWindow(new Preferences(new StubStartupService(), tempDir), _ => { });
+    window.Show();
+    return window;
+});
+
+Capture("07-importar", () =>
+{
+    var window = MessageDialog.Build("Importar 39 templates?", "Você tem 6 templates agora.",
+                                     "Adicionar aos meus", "Substituir tudo", "Cancelar");
     window.Show();
     return window;
 });

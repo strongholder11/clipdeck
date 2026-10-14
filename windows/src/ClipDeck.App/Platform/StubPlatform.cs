@@ -40,3 +40,14 @@ public sealed class StubPasteService : IPasteService
 
     public void RememberForegroundWindow() { }
 }
+
+public sealed class StubStartupService : IStartupService
+{
+    public bool IsEnabled { get; private set; }
+
+    public string? SetEnabled(bool enabled)
+    {
+        IsEnabled = enabled;
+        return null;
+    }
+}

@@ -29,6 +29,11 @@
             <StackPanel Spacing="4">
                 <TextBlock Text="Tags" FontSize="11" Opacity="0.6"/>
                 <TextBox Name="TagsBox" PlaceholderText="separadas por espaço"/>
+                <ItemsControl Name="SuggestedTags" Margin="0,2,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </StackPanel>
 
             <StackPanel Spacing="4">
@@ -46,7 +51,7 @@
         <Grid ColumnDefinitions="*,Auto,Auto" Margin="16,12">
             <TextBlock Grid.Column="0" Name="CountText" FontSize="11" Opacity="0.4"
                        VerticalAlignment="Center"/>
-            <Button Grid.Column="1" Name="CancelButton" Content="Cancelar" Margin="0,0,8,0"/>
+            <Button Grid.Column="1" Name="CancelButton" Content="Cancelar" Margin="0,0,8,0" IsCancel="True"/>
             <Button Grid.Column="2" Name="SaveButton" Content="Salvar" IsDefault="True"/>
         </Grid>
     </StackPanel>

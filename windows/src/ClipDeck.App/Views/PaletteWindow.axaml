@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ClipDeck.App.ViewModels"
+        xmlns:c="using:ClipDeck.App.Controls"
         x:Class="ClipDeck.App.Views.PaletteWindow"
         x:DataType="vm:PaletteViewModel"
         Title="ClipDeck"
@@ -58,19 +59,26 @@
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:PaletteRow">
-                        <Grid ColumnDefinitions="*,Auto" Margin="4,3">
-                            <StackPanel Grid.Column="0" Spacing="2">
-                                <TextBlock Text="{Binding Title}"
-                                           FontSize="14" FontWeight="Medium"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="{Binding Subtitle}"
-                                           FontSize="11" Opacity="0.6"
-                                           TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1" Text="{Binding Shortcut}"
-                                       FontSize="10" Opacity="0.4"
-                                       VerticalAlignment="Center" Margin="8,0,0,0"/>
-                        </Grid>
+                        <StackPanel>
+                            <TextBlock Text="Copiado recentemente — Enter salva como template"
+                                       IsVisible="{Binding StartsRecentSection}"
+                                       FontSize="10" FontWeight="Medium" Opacity="0.45"
+                                       Margin="4,8,0,4"/>
+                            <Grid ColumnDefinitions="*,Auto" Margin="4,3">
+                                <StackPanel Grid.Column="0" Spacing="2">
+                                    <c:HighlightedText Source="{Binding Title}"
+                                                       Highlights="{Binding TitleHighlights}"
+                                                       FontSize="14" FontWeight="Medium"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding Subtitle}"
+                                               FontSize="11" Opacity="0.6"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding Shortcut}"
+                                           FontSize="10" Opacity="0.4"
+                                           VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </Grid>
+                        </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

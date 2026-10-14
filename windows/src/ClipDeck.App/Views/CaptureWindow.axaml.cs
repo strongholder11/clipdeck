@@ -60,6 +60,25 @@ public partial class CaptureWindow : Window
         this.FindControl<Button>("CancelButton")!.Click += (_, _) => Close();
         this.FindControl<Button>("SaveButton")!.Click += (_, _) => Save();
 
+        // Atalhos para as tags que você mais usa: um clique em vez de lembrar e
+        // digitar o nome exato.
+        var tagsBox = this.FindControl<TextBox>("TagsBox")!;
+        this.FindControl<ItemsControl>("SuggestedTags")!.ItemsSource = store.AllTags.Take(6)
+            .Select(tag =>
+            {
+                var chip = new Button
+                {
+                    Content = "#" + tag,
+                    FontSize = 11,
+                    Padding = new Avalonia.Thickness(7, 1),
+                    Margin = new Avalonia.Thickness(0, 0, 5, 5),
+                    CornerRadius = new Avalonia.CornerRadius(9),
+                };
+                chip.Click += (_, _) => AppendTag(tagsBox, tag);
+                return chip;
+            })
+            .ToList();
+
         if (startWithNewFolder)
         {
             folderBox.SelectedIndex = _folders.Count + 1;
@@ -69,6 +88,16 @@ public partial class CaptureWindow : Window
     }
 
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
+
+    private static void AppendTag(TextBox box, string tag)
+    {
+        var current = (box.Text ?? string.Empty)
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .ToList();
+        if (current.Contains(tag)) return;
+        current.Add(tag);
+        box.Text = string.Join(' ', current);
+    }
 
     /// <summary>Repopula o seletor, sempre com "Nova pasta…" no fim.</summary>
     private void RefreshFolderBox(int selectIndex)

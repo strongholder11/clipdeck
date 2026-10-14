@@ -7,24 +7,49 @@ using ClipDeck.Core.Search;
 
 namespace ClipDeck.App.ViewModels;
 
-/// <summary>Uma linha da paleta, já formatada para exibição.</summary>
+/// <summary>
+/// Uma linha da paleta, já formatada para exibição.
+///
+/// Templates e cópias recentes convivem na mesma lista para a navegação por
+/// teclado ser uma só — com duas listas, a seta teria que "pular" de uma para a
+/// outra e a seleção viraria um caso especial em todo lugar.
+/// </summary>
 public sealed class PaletteRow
 {
-    public required Template Template { get; init; }
+    /// <summary>Preenchido nas linhas de template.</summary>
+    public Template? Template { get; init; }
+
+    /// <summary>Preenchido nas linhas de cópia recente.</summary>
+    public ClipboardEntry? RecentCopy { get; init; }
+
     public required string Title { get; init; }
     public required string Subtitle { get; init; }
     public required string Shortcut { get; init; }
+    public IReadOnlyList<int> TitleHighlights { get; init; } = Array.Empty<int>();
+
+    /// <summary>Primeira cópia recente: leva o cabeçalho da seção acima dela.</summary>
+    public bool StartsRecentSection { get; init; }
+
+    public bool IsRecent => RecentCopy is not null;
 }
 
 public sealed class PaletteViewModel : INotifyPropertyChanged
 {
+    /// <summary>
+    /// Quantas cópias recentes mostrar. Poucas de propósito: a lista existe para
+    /// capturar o que você acabou de escrever, não para virar um histórico.
+    /// </summary>
+    private const int RecentLimit = 3;
+
     private readonly TemplateStore _store;
+    private readonly ClipboardWatcher? _clipboard;
     private string _query = string.Empty;
     private int _selectedIndex;
 
-    public PaletteViewModel(TemplateStore store)
+    public PaletteViewModel(TemplateStore store, ClipboardWatcher? clipboard = null)
     {
         _store = store;
+        _clipboard = clipboard;
         Refresh();
     }
 
@@ -80,10 +105,32 @@ public sealed class PaletteViewModel : INotifyPropertyChanged
             {
                 Template = template,
                 Title = template.Title,
+                TitleHighlights = results[i].TitleHighlights,
                 Subtitle = string.Join("  ·  ", pieces),
                 // Atalho direto para os 9 primeiros, para quando já se sabe a posição.
                 Shortcut = i < 9 ? $"Ctrl+{i + 1}" : string.Empty,
             });
+        }
+
+        TemplateCount = results.Count;
+
+        // As recentes só aparecem sem busca ativa: com uma consulta digitada, a
+        // lista precisa ser só o que casa com ela.
+        if (Query.Length == 0 && _clipboard is not null)
+        {
+            var first = true;
+            foreach (var entry in _clipboard.Entries.Take(RecentLimit))
+            {
+                Rows.Add(new PaletteRow
+                {
+                    RecentCopy = entry,
+                    Title = entry.Preview,
+                    Subtitle = entry.CopiedAt.ToString("HH:mm"),
+                    Shortcut = "+",
+                    StartsRecentSection = first,
+                });
+                first = false;
+            }
         }
 
         // A seleção volta ao topo a cada digitação: o melhor resultado muda, e
@@ -94,7 +141,10 @@ public sealed class PaletteViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(ResultCount));
     }
 
-    public string ResultCount => Rows.Count.ToString();
+    /// <summary>Quantos templates (não cópias recentes) estão na lista.</summary>
+    public int TemplateCount { get; private set; }
+
+    public string ResultCount => TemplateCount.ToString();
 
     public void Reset()
     {

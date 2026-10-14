@@ -165,7 +165,8 @@ Toda gravação é atômica e passa por um backup rotativo (5 cópias em `Backup
 Se o arquivo for corrompido, o app recupera do backup mais recente e preserva o
 arquivo defeituoso como `library.corrupt-<data>.json` em vez de apagá-lo.
 
-Exportar e importar em JSON estão no menu da barra.
+Exportar e importar em JSON estão no menu da barra. O formato é o mesmo nas
+versões macOS e Windows: um arquivo exportado num sistema importa no outro.
 
 ## Estrutura
 

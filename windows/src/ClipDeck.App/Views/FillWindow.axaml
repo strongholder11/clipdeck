@@ -23,7 +23,7 @@
         <Grid ColumnDefinitions="*,Auto,Auto" Margin="16,12">
             <TextBlock Grid.Column="0" Name="RemainingText" FontSize="11"
                        Foreground="#E08A2E" VerticalAlignment="Center"/>
-            <Button Grid.Column="1" Name="CancelButton" Content="Cancelar" Margin="0,0,8,0"/>
+            <Button Grid.Column="1" Name="CancelButton" Content="Cancelar" Margin="0,0,8,0" IsCancel="True"/>
             <Button Grid.Column="2" Name="ConfirmButton" Content="Colar" IsDefault="True"/>
         </Grid>
     </StackPanel>

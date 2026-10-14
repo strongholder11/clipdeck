@@ -55,6 +55,14 @@ public partial class FillWindow : Window
                 _values[variable.Name] = box.Text ?? string.Empty;
                 UpdatePreview();
             };
+            // Enter vai para o próximo campo vazio; no último, confirma. Assim dá
+            // para preencher tudo sem tirar a mão do teclado nem contar Tabs.
+            box.KeyDown += (_, e) =>
+            {
+                if (e.Key != Avalonia.Input.Key.Enter) return;
+                e.Handled = true;
+                AdvanceOrConfirm(box);
+            };
             _boxes.Add(box);
 
             items.Add(new StackPanel
@@ -88,6 +96,14 @@ public partial class FillWindow : Window
 
     private string Rendered =>
         TemplateRenderer.Render(_template.Body, _values, _clipboard);
+
+    private void AdvanceOrConfirm(TextBox current)
+    {
+        var index = _boxes.IndexOf(current);
+        var next = _boxes.Skip(index + 1).FirstOrDefault(b => string.IsNullOrEmpty(b.Text));
+        if (next is not null) next.Focus();
+        else Confirm();
+    }
 
     private void Confirm()
     {

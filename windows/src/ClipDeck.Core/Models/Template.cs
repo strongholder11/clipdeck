@@ -8,6 +8,11 @@ public sealed class Template
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = "Sem título";
     public string Body { get; set; } = string.Empty;
+    /// <summary>
+    /// "folderID", e não "folderId": é o nome que a versão macOS grava e lê. Com
+    /// o nome padrão, um arquivo exportado aqui perderia as pastas ao abrir no Mac.
+    /// </summary>
+    [JsonPropertyName("folderID")]
     public Guid? FolderId { get; set; }
     public List<string> Tags { get; set; } = new();
 

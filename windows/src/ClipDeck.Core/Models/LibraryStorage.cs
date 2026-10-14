@@ -35,8 +35,9 @@ public sealed class LibraryStorage
 
     // JSON legível e estável: dá para versionar, sincronizar e editar à mão sem
     // o diff explodir a cada gravação.
-    private static readonly JsonSerializerOptions Options = new()
+    public static readonly JsonSerializerOptions Options = new()
     {
+        Converters = { new Iso8601DateConverter() },
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,

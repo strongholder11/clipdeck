@@ -13,6 +13,19 @@ namespace ClipDeck.App.Platform;
 public static class ClipboardHelper
 {
     private static string? _fallback;
+    private static uint _fallbackSequence;
+    private static uint _ourSequence;
+
+    /// <summary>
+    /// Contador que o Windows incrementa a cada mudança na área de transferência.
+    /// Ler é barato (um inteiro, não o conteúdo), o que permite observar cópias
+    /// com polling sem pesar.
+    /// </summary>
+    public static uint SequenceNumber =>
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? GetClipboardSequenceNumber() : _fallbackSequence;
+
+    /// <summary>A mudança com esse número foi escrita por nós, ao colar um template.</summary>
+    public static bool WasWrittenByUs(uint sequence) => sequence == _ourSequence && sequence != 0;
 
     public static string? ReadText()
     {
@@ -37,8 +50,30 @@ public static class ClipboardHelper
 
     public static void WriteText(string text)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { _fallback = text; return; }
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            _fallback = text;
+            _ourSequence = ++_fallbackSequence;
+            return;
+        }
 
+        try { WriteNative(text); }
+        finally { _ourSequence = GetClipboardSequenceNumber(); }
+    }
+
+    /// <summary>
+    /// Simula uma cópia feita por outro programa. Só fora do Windows, para
+    /// inspecionar a lista de cópias recentes sem um clipboard de verdade.
+    /// </summary>
+    public static void SimulateExternalCopy(string text)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+        _fallback = text;
+        _fallbackSequence++;
+    }
+
+    private static void WriteNative(string text)
+    {
         if (!OpenClipboard(IntPtr.Zero)) return;
 
         try
@@ -64,6 +99,7 @@ public static class ClipboardHelper
     private const uint CF_UNICODETEXT = 13;
     private const uint GMEM_MOVEABLE = 0x0002;
 
+    [DllImport("user32.dll")] private static extern uint GetClipboardSequenceNumber();
     [DllImport("user32.dll")] private static extern bool OpenClipboard(IntPtr hWndNewOwner);
     [DllImport("user32.dll")] private static extern bool CloseClipboard();
     [DllImport("user32.dll")] private static extern bool EmptyClipboard();
